@@ -7,6 +7,7 @@ import os
 import datetime
 from time import gmtime, strftime
 import time
+import pickle
 # import threading
 
 # print(
@@ -110,7 +111,10 @@ def JSONconvert(node,json_file_path,csv_file_path):
                 print "[UPDATE] New Row Appended!"
 
         print "[INFO] Dataset in memory updated"
-
+    pickle_file = "C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\pickle_temp_MajorEvent"
+    with open(pickle_file,'wb') as f:
+        pickle.dump(current_dataset,f)
+    print "[INFO] Data Cached in local file"
 
     header = list(set(header))
     header.sort()
@@ -196,6 +200,15 @@ def check():
             print "[ERROR] unexpected"
 
 if __name__ == "__main__":
+    pickle_file = "C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\pickle_temp_MajorEvent"
+    try:
+        with open(pickle_file,'rb') as f:
+            global current_dataset
+            current_dataset = pickle.load(f)
+        print "[INFO] Cache read successfully"
+    except:
+        pass
+        
     starttime=time.time()
     global starttime_int
     starttime_int = int(time.time())
