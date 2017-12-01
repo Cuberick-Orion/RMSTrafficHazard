@@ -111,7 +111,8 @@ def JSONconvert(node,json_file_path,csv_file_path):
                 print "[UPDATE] New Row Appended!"
 
         print "[INFO] Dataset in memory updated"
-    pickle_file = "C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\pickle_temp_Incident"
+    # pickle_file = "C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\pickle_temp_Incident"
+    pickle_file = "E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\pickle_temp_Incident"
     with open(pickle_file,'wb') as f:
         pickle.dump(current_dataset,f)
     print "[INFO] Data Cached in local file"
@@ -164,7 +165,8 @@ def check():
     # majorevent_parsed = majorevent['features']
 
     global starttime_int
-    RecordFileName = ('C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\Incident_update_history_%d.txt' % starttime_int) 
+    # RecordFileName = ('C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\Incident_update_history_%d.txt' % starttime_int) 
+    RecordFileName = ('E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\Incident_update_history_%d.txt' % starttime_int) 
     with open(RecordFileName,'a+') as majorevent_record:
 
         try:
@@ -179,7 +181,8 @@ def check():
             majorevent_record.write( str(majorevent_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '  NEW' +'\n')
 
             # open a file for writing, default in C:
-            mkdir_p('C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData')
+            # mkdir_p('C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData')
+            mkdir_p('E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData')
 
             global fileCheck
             fileCheck = os.path.isfile('/tmp/MajorEvent.csv')
@@ -187,7 +190,8 @@ def check():
 
             global total_count
             global starttime_int
-            fileName = ("C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\Incident_%d_%d.csv" % (starttime_int,total_count))
+            # fileName = ("C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\Incident_%d_%d.csv" % (starttime_int,total_count))
+            fileName = ("E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\Incident_%d_%d.csv" % (starttime_int,total_count))
             JSONconvert('features', url, fileName)
             print "[INFO] Updating finished"
         elif int(majorevent_time_mark) == int(latest_time_mark[:13]):
@@ -200,7 +204,8 @@ def check():
             print "[ERROR] unexpected"
 
 if __name__ == "__main__":
-    pickle_file = "C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\pickle_temp_Incident"
+    # pickle_file = "C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\pickle_temp_Incident"
+    pickle_file = "E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\pickle_temp_Incident"
     try:
         with open(pickle_file,'rb') as f:
             global current_dataset
