@@ -148,7 +148,7 @@ def JSONconvert(node,json_file_path,csv_file_path):
 
 
 def check():
-    url = "http://data.livetraffic.com/traffic/hazards/majorevent.json"
+    url = "http://data.livetraffic.com/traffic/hazards/roadwork.json"
 
     response = urllib.urlopen(url)
     # load JSON file
@@ -160,7 +160,7 @@ def check():
     # majorevent_parsed = majorevent['features']
 
     global starttime_int
-    RecordFileName = ('C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\MajorEvent_update_history_%d.txt' % starttime_int) 
+    RecordFileName = ('C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\Roadwork_update_history_%d.txt' % starttime_int) 
     with open(RecordFileName,'a+') as majorevent_record:
 
         try:
@@ -183,7 +183,7 @@ def check():
 
             global total_count
             global starttime_int
-            fileName = ("C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\MajorEvent_%d_%d.csv" % (starttime_int,total_count))
+            fileName = ("C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\Roadwork_%d_%d.csv" % (starttime_int,total_count))
             JSONconvert('features', url, fileName)
             print "[INFO] Updating finished"
         elif int(majorevent_time_mark) == int(latest_time_mark[:13]):
