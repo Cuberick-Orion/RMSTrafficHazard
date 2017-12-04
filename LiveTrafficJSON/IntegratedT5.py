@@ -7,8 +7,6 @@ import datetime
 from time import gmtime, strftime
 import time
 import pickle
-import Tkinter as tk
-
 
 def mkdir_p(path):
     try:
@@ -19,14 +17,12 @@ def mkdir_p(path):
         else:
             raise
 
-
 def to_string(s):
     try:
         return str(s)
     except:
         #Change the encoding type if needed
         return s.encode('utf-8')
-
 
 def reduce_item(key, value):
     global reduced_item
@@ -48,14 +44,13 @@ def reduce_item(key, value):
     else:
         reduced_item[to_string(key)] = to_string(value)
 
+def JSONconvert_Roadwork(node,raw_data,csv_file_path,csv_file_changes):
+    file_changes = open(csv_file_changes,'w+')
+    file_changes.write ('>>>Record changes made in this update \n')
 
-def JSONconvert_Roadwork(node,json_file_path,csv_file_path):
+    rows_updated_count = 0
+    rows_appended_count = 0
 
-    response = urllib.urlopen(json_file_path)
-    # load JSON file
-    print("[INFO] URL load complete")
-
-    raw_data = json.loads(response.read())
     try:
         data_to_be_processed = raw_data[node]
     except:
@@ -74,10 +69,12 @@ def JSONconvert_Roadwork(node,json_file_path,csv_file_path):
 
     global current_dataset_Roadwork
     if current_dataset_Roadwork == []:
-        print "[INFO] Dataset written in memory"
         current_dataset_Roadwork = processed_data
+        print "[INFO] New dataset written in memory"
+        file_changes.write('No previous data, write received dataset to csv')
     else:
-        print "[INFO] Dataset exists in memory"
+        
+        print "[INFO] Dataset exists in memory, will be updated"
         # merge processed_data with current_dataset
         for row in processed_data:
             # print type(row)
@@ -87,37 +84,35 @@ def JSONconvert_Roadwork(node,json_file_path,csv_file_path):
             replaced = False
             for row_compare in current_dataset_Roadwork:
                 if row_compare['features_id'] == row_id:
-                    print "[UPDATE] Row updated with id: ", row_id
+                    file_changes.write("[UPDATE] Row updated with id: " + str(row_id) + "\n")
+                    rows_updated_count += 1
                     current_dataset_Roadwork[i] = row
                     replaced = True
                 i += 1
             if replaced is False:
                 current_dataset_Roadwork.append(row)
-                print "[UPDATE] New Row Appended: ", row_id
-
-        print "[INFO] Roadwork Dataset in memory updated"
-
-    pickle_file = fileDir + "pickle_temp_Roadwork"
-    # pickle_file = "E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\pickle_temp_Roadwork"
+                file_changes.write("[APPEND] New Row Appended: " + str(row_id) + "\n")
+                rows_appended_count += 1
+        print "[INFO] Roadwork Dataset is updated with received data"
+        print "[INFO] No. of rows updated: ", rows_updated_count, " | No. of rows appended: ", rows_appended_count, "Details recorded in .change file"
+    file_changes.close()
+    
+    pickle_file = fileDir + "Roadwork_cache"
     with open(pickle_file,'wb') as f:
         pickle.dump(current_dataset_Roadwork,f)
-    print "[INFO] Roadwork Data Cached in local file"
-
+    print "[INFO] Roadwork Data cached in local file"
 
     header = list(set(header))
     header.sort()
     header = [e for e in header if e not in ('features_properties_additionalInfo_0','features_properties_adviceA','features_properties_adviceB', 'features_properties_arrangementAttachments_0_displayName', 'features_properties_arrangementAttachments_0_fileName', 'features_properties_arrangementAttachments_0_fileType', 'features_properties_arrangementAttachments_0_linkName', 'features_properties_arrangementAttachments_0_sizeInBytes', 'features_properties_arrangementAttachments_0_uniqueFileName', 'features_properties_arrangementAttachments_1_displayName', 'features_properties_arrangementAttachments_1_fileName', 'features_properties_arrangementAttachments_1_fileType', 'features_properties_arrangementAttachments_1_linkName', 'features_properties_arrangementAttachments_1_sizeInBytes', 'features_properties_arrangementAttachments_1_uniqueFileName', 'features_properties_arrangementAttachments_2_displayName', 'features_properties_arrangementAttachments_2_fileName', 'features_properties_arrangementAttachments_2_fileType', 'features_properties_arrangementAttachments_2_linkName', 'features_properties_arrangementAttachments_2_sizeInBytes', 'features_properties_arrangementAttachments_2_uniqueFileName', 'features_properties_arrangementAttachments_3_displayName', 'features_properties_arrangementAttachments_3_fileName', 'features_properties_arrangementAttachments_3_fileType', 'features_properties_arrangementAttachments_3_linkName', 'features_properties_arrangementAttachments_3_sizeInBytes', 'features_properties_arrangementAttachments_3_uniqueFileName', 'features_properties_arrangementElements_0_html', 'features_properties_arrangementElements_0_title', 'features_properties_arrangementElements_1_html', 'features_properties_arrangementElements_1_title', 'features_properties_arrangementElements_2_html', 'features_properties_arrangementElements_2_title')]
     header = [e for e in header if e not in ('features_properties_attendingGroups_0')]
     header = [e for e in header if e not in ('features_properties_subCategoryA', 'features_properties_subCategoryB', 'features_properties_webLinkName', 'features_properties_webLinkUrl', 'features_properties_webLinks_0_linkText', 'features_properties_webLinks_0_linkURL', 'features_type')]
-    # print header
     removed_e = ('features_properties_additionalInfo_0','features_properties_adviceA','features_properties_adviceB', 'features_properties_arrangementAttachments_0_displayName', 'features_properties_arrangementAttachments_0_fileName', 'features_properties_arrangementAttachments_0_fileType', 'features_properties_arrangementAttachments_0_linkName', 'features_properties_arrangementAttachments_0_sizeInBytes', 'features_properties_arrangementAttachments_0_uniqueFileName', 'features_properties_arrangementAttachments_1_displayName', 'features_properties_arrangementAttachments_1_fileName', 'features_properties_arrangementAttachments_1_fileType', 'features_properties_arrangementAttachments_1_linkName', 'features_properties_arrangementAttachments_1_sizeInBytes', 'features_properties_arrangementAttachments_1_uniqueFileName', 'features_properties_arrangementAttachments_2_displayName', 'features_properties_arrangementAttachments_2_fileName', 'features_properties_arrangementAttachments_2_fileType', 'features_properties_arrangementAttachments_2_linkName', 'features_properties_arrangementAttachments_2_sizeInBytes', 'features_properties_arrangementAttachments_2_uniqueFileName', 'features_properties_arrangementAttachments_3_displayName', 'features_properties_arrangementAttachments_3_fileName', 'features_properties_arrangementAttachments_3_fileType', 'features_properties_arrangementAttachments_3_linkName', 'features_properties_arrangementAttachments_3_sizeInBytes', 'features_properties_arrangementAttachments_3_uniqueFileName', 'features_properties_arrangementElements_0_html', 'features_properties_arrangementElements_0_title', 'features_properties_arrangementElements_1_html', 'features_properties_arrangementElements_1_title', 'features_properties_arrangementElements_2_html', 'features_properties_arrangementElements_2_title','features_properties_attendingGroups_0','features_properties_subCategoryA', 'features_properties_subCategoryB', 'features_properties_webLinkName', 'features_properties_webLinkUrl', 'features_properties_webLinks_0_linkText', 'features_properties_webLinks_0_linkURL', 'features_type')
     
     # processed_data is the final data
-
     with open(csv_file_path, 'w+') as f:
         writer = csv.DictWriter(f, header, quoting=csv.QUOTE_ALL)
         writer.writeheader()
-        global current_dataset_Roadwork
         for row in current_dataset_Roadwork:
             for k in removed_e:
                 row.pop(k,None)
@@ -126,69 +121,13 @@ def JSONconvert_Roadwork(node,json_file_path,csv_file_path):
             except:
                 pass
 
+def JSONconvert_MajorEvent(node,raw_data,csv_file_path,csv_file_changes):
+    file_changes = open(csv_file_changes,'w+')
+    file_changes.write ('>>>Record changes made in this update \n')
 
+    rows_updated_count = 0
+    rows_appended_count = 0
 
-    print ("[INFO] Completed writing csv file with %d columns" % len(header))
-
-def check_Roadwork():
-    url = "http://data.livetraffic.com/traffic/hazards/roadwork.json"
-
-    response = urllib.urlopen(url)
-    # load JSON file
-    majorevent = json.loads(response.read())
-    print("[INFO] URL checked")
-
-    majorevent_time_mark = majorevent['lastPublished']
-    print "[INFO] Received time stamp: ", majorevent_time_mark
-    # majorevent_parsed = majorevent['features']
-
-    global starttime_int
-
-    RecordFileNameDir = fileDir + 'Roadwork_update_history_%d.txt'
-    RecordFileName = (RecordFileNameDir % starttime_int) 
-
-    with open(RecordFileName,'a+') as majorevent_record:
-
-        try:
-            latest_time_mark = majorevent_record.readlines()[-1]
-            print"[INFO] Currently recorded time stamp: ", latest_time_mark
-        except:
-            latest_time_mark = str(0000000000000)
-            print"[INFO] No existing time stamp recorded"
-
-        if int(majorevent_time_mark) > int(latest_time_mark[:13]):
-            print "[INFO] New Data Arrived"
-            majorevent_record.write( str(majorevent_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '  NEW' +'\n')
-
-            # open a file for writing, default in C:
-            
-            mkdir_p(fileDir)
-            # mkdir_p('E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData')
-
-            global total_count
-            global starttime_int
-
-            fileNameDir = fileDir + "Roadwork_%d_%d.csv"
-            fileName = (fileNameDir % (starttime_int,total_count))
-
-            JSONconvert_Roadwork('features', url, fileName)
-            print "[INFO] Updating finished"
-        elif int(majorevent_time_mark) == int(latest_time_mark[:13]):
-            majorevent_record.write( str(majorevent_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'\n')
-            print "[INFO] No new data"
-        elif int(majorevent_time_mark) < int(latest_time_mark[:13]):
-            majorevent_record.write( str(int(latest_time_mark[:13]))+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'  DISCARD: '+str(majorevent_time_mark)+'\n')
-            print "[INFO] Receive and discard old data"
-        else:
-            print "[ERROR] unexpected"
-
-def JSONconvert_MajorEvent(node,json_file_path,csv_file_path):
-    
-    response = urllib.urlopen(json_file_path)
-    # load JSON file
-    print("[INFO] URL load complete")
-
-    raw_data = json.loads(response.read())
     try:
         data_to_be_processed = raw_data[node]
     except:
@@ -207,10 +146,12 @@ def JSONconvert_MajorEvent(node,json_file_path,csv_file_path):
 
     global current_dataset_MajorEvent
     if current_dataset_MajorEvent == []:
-        print "[INFO] Dataset written in memory"
         current_dataset_MajorEvent = processed_data
+        print "[INFO] New dataset written in memory"
+        file_changes.write('No previous data, write received dataset to csv')
     else:
-        print "[INFO] Dataset exists in memory"
+        
+        print "[INFO] Dataset exists in memory, will be updated"
         # merge processed_data with current_dataset
         for row in processed_data:
             # print type(row)
@@ -220,36 +161,35 @@ def JSONconvert_MajorEvent(node,json_file_path,csv_file_path):
             replaced = False
             for row_compare in current_dataset_MajorEvent:
                 if row_compare['features_id'] == row_id:
-                    print "[UPDATE] Row updated with id: ", row_id
+                    file_changes.write("[UPDATE] Row updated with id: " + str(row_id) + "\n")
+                    rows_updated_count += 1
                     current_dataset_MajorEvent[i] = row
                     replaced = True
                 i += 1
             if replaced is False:
                 current_dataset_MajorEvent.append(row)
-                print "[UPDATE] New Row Appended: ", row_id
-
-        print "[INFO] MajorEvent Dataset in memory updated"
-
-    pickle_file = fileDir + "pickle_temp_MajorEvent"
-    # pickle_file = "E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\pickle_temp_MajorEvent"
+                file_changes.write("[APPEND] New Row Appended: " + str(row_id) + "\n")
+                rows_appended_count += 1
+        print "[INFO] MajorEvent Dataset is updated with received data"
+        print "[INFO] No. of rows updated: ", rows_updated_count, " | No. of rows appended: ", rows_appended_count, "Details recorded in .change file"
+    file_changes.close()
+    
+    pickle_file = fileDir + "MajorEvent_cache"
     with open(pickle_file,'wb') as f:
         pickle.dump(current_dataset_MajorEvent,f)
-    print "[INFO] MajorEvent Data Cached in local file"
+    print "[INFO] MajorEvent Data cached in local file"
 
     header = list(set(header))
     header.sort()
     header = [e for e in header if e not in ('features_properties_additionalInfo_0','features_properties_adviceA','features_properties_adviceB', 'features_properties_arrangementAttachments_0_displayName', 'features_properties_arrangementAttachments_0_fileName', 'features_properties_arrangementAttachments_0_fileType', 'features_properties_arrangementAttachments_0_linkName', 'features_properties_arrangementAttachments_0_sizeInBytes', 'features_properties_arrangementAttachments_0_uniqueFileName', 'features_properties_arrangementAttachments_1_displayName', 'features_properties_arrangementAttachments_1_fileName', 'features_properties_arrangementAttachments_1_fileType', 'features_properties_arrangementAttachments_1_linkName', 'features_properties_arrangementAttachments_1_sizeInBytes', 'features_properties_arrangementAttachments_1_uniqueFileName', 'features_properties_arrangementAttachments_2_displayName', 'features_properties_arrangementAttachments_2_fileName', 'features_properties_arrangementAttachments_2_fileType', 'features_properties_arrangementAttachments_2_linkName', 'features_properties_arrangementAttachments_2_sizeInBytes', 'features_properties_arrangementAttachments_2_uniqueFileName', 'features_properties_arrangementAttachments_3_displayName', 'features_properties_arrangementAttachments_3_fileName', 'features_properties_arrangementAttachments_3_fileType', 'features_properties_arrangementAttachments_3_linkName', 'features_properties_arrangementAttachments_3_sizeInBytes', 'features_properties_arrangementAttachments_3_uniqueFileName', 'features_properties_arrangementElements_0_html', 'features_properties_arrangementElements_0_title', 'features_properties_arrangementElements_1_html', 'features_properties_arrangementElements_1_title', 'features_properties_arrangementElements_2_html', 'features_properties_arrangementElements_2_title')]
     header = [e for e in header if e not in ('features_properties_attendingGroups_0')]
     header = [e for e in header if e not in ('features_properties_subCategoryA', 'features_properties_subCategoryB', 'features_properties_webLinkName', 'features_properties_webLinkUrl', 'features_properties_webLinks_0_linkText', 'features_properties_webLinks_0_linkURL', 'features_type')]
-    # print header
     removed_e = ('features_properties_additionalInfo_0','features_properties_adviceA','features_properties_adviceB', 'features_properties_arrangementAttachments_0_displayName', 'features_properties_arrangementAttachments_0_fileName', 'features_properties_arrangementAttachments_0_fileType', 'features_properties_arrangementAttachments_0_linkName', 'features_properties_arrangementAttachments_0_sizeInBytes', 'features_properties_arrangementAttachments_0_uniqueFileName', 'features_properties_arrangementAttachments_1_displayName', 'features_properties_arrangementAttachments_1_fileName', 'features_properties_arrangementAttachments_1_fileType', 'features_properties_arrangementAttachments_1_linkName', 'features_properties_arrangementAttachments_1_sizeInBytes', 'features_properties_arrangementAttachments_1_uniqueFileName', 'features_properties_arrangementAttachments_2_displayName', 'features_properties_arrangementAttachments_2_fileName', 'features_properties_arrangementAttachments_2_fileType', 'features_properties_arrangementAttachments_2_linkName', 'features_properties_arrangementAttachments_2_sizeInBytes', 'features_properties_arrangementAttachments_2_uniqueFileName', 'features_properties_arrangementAttachments_3_displayName', 'features_properties_arrangementAttachments_3_fileName', 'features_properties_arrangementAttachments_3_fileType', 'features_properties_arrangementAttachments_3_linkName', 'features_properties_arrangementAttachments_3_sizeInBytes', 'features_properties_arrangementAttachments_3_uniqueFileName', 'features_properties_arrangementElements_0_html', 'features_properties_arrangementElements_0_title', 'features_properties_arrangementElements_1_html', 'features_properties_arrangementElements_1_title', 'features_properties_arrangementElements_2_html', 'features_properties_arrangementElements_2_title','features_properties_attendingGroups_0','features_properties_subCategoryA', 'features_properties_subCategoryB', 'features_properties_webLinkName', 'features_properties_webLinkUrl', 'features_properties_webLinks_0_linkText', 'features_properties_webLinks_0_linkURL', 'features_type')
     
     # processed_data is the final data
-
     with open(csv_file_path, 'w+') as f:
         writer = csv.DictWriter(f, header, quoting=csv.QUOTE_ALL)
         writer.writeheader()
-        global current_dataset_MajorEvent
         for row in current_dataset_MajorEvent:
             for k in removed_e:
                 row.pop(k,None)
@@ -258,66 +198,13 @@ def JSONconvert_MajorEvent(node,json_file_path,csv_file_path):
             except:
                 pass
 
-    print ("[INFO] Completed writing csv file with %d columns" % len(header))
+def JSONconvert_Incident(node,raw_data,csv_file_path,csv_file_changes):
+    file_changes = open(csv_file_changes,'w+')
+    file_changes.write ('>>>Record changes made in this update \n')
 
-def check_MajorEvent():
-    url = "http://data.livetraffic.com/traffic/hazards/majorevent.json"
+    rows_updated_count = 0
+    rows_appended_count = 0
 
-    response = urllib.urlopen(url)
-    # load JSON file
-    majorevent = json.loads(response.read())
-    print("[INFO] URL checked")
-
-    majorevent_time_mark = majorevent['lastPublished']
-    print "[INFO] Received time stamp: ", majorevent_time_mark
-    # majorevent_parsed = majorevent['features']
-
-    global starttime_int
-    RecordFileNameDir = fileDir + 'MajorEvent_update_history_%d.txt'
-    RecordFileName = (RecordFileNameDir % starttime_int) 
-    # RecordFileName = ('E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\MajorEvent_update_history_%d.txt' % starttime_int) 
-
-    with open(RecordFileName,'a+') as majorevent_record:
-
-        try:
-            latest_time_mark = majorevent_record.readlines()[-1]
-            print"[INFO] Currently recorded time stamp: ", latest_time_mark
-        except:
-            latest_time_mark = str(0000000000000)
-            print"[INFO] No existing time stamp recorded"
-
-        if int(majorevent_time_mark) > int(latest_time_mark[:13]):
-            print "[INFO] New Data Arrived"
-            majorevent_record.write( str(majorevent_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '  NEW' +'\n')
-
-            # open a file for writing, default in C:
-            mkdir_p(fileDir)
-            # mkdir_p('E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData')
-
-            global total_count
-            global starttime_int
-            fileNameDir = fileDir + "MajorEvent_%d_%d.csv"
-            fileName = (fileNameDir % (starttime_int,total_count))
-            # fileName = ("E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\MajorEvent_%d_%d.csv" % (starttime_int,total_count))
-            
-            JSONconvert_MajorEvent('features', url, fileName)
-            print "[INFO] Updating finished"
-        elif int(majorevent_time_mark) == int(latest_time_mark[:13]):
-            majorevent_record.write( str(majorevent_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'\n')
-            print "[INFO] No new data"
-        elif int(majorevent_time_mark) < int(latest_time_mark[:13]):
-            majorevent_record.write( str(int(latest_time_mark[:13]))+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'  DISCARD: '+str(majorevent_time_mark)+'\n')
-            print "[INFO] Receive and discard old data"
-        else:
-            print "[ERROR] unexpected"
-
-def JSONconvert_Incident(node,json_file_path,csv_file_path):
-    
-    response = urllib.urlopen(json_file_path)
-    # load JSON file
-    print("[INFO] URL load complete")
-
-    raw_data = json.loads(response.read())
     try:
         data_to_be_processed = raw_data[node]
     except:
@@ -336,10 +223,12 @@ def JSONconvert_Incident(node,json_file_path,csv_file_path):
 
     global current_dataset_Incident
     if current_dataset_Incident == []:
-        print "[INFO] Dataset written in memory"
         current_dataset_Incident = processed_data
+        print "[INFO] New dataset written in memory"
+        file_changes.write('No previous data, write received dataset to csv')
     else:
-        print "[INFO] Dataset exists in memory"
+        
+        print "[INFO] Dataset exists in memory, will be updated"
         # merge processed_data with current_dataset
         for row in processed_data:
             # print type(row)
@@ -349,35 +238,35 @@ def JSONconvert_Incident(node,json_file_path,csv_file_path):
             replaced = False
             for row_compare in current_dataset_Incident:
                 if row_compare['features_id'] == row_id:
-                    print "[UPDATE] Row updated with id: ", row_id
+                    file_changes.write("[UPDATE] Row updated with id: " + str(row_id) + "\n")
+                    rows_updated_count += 1
                     current_dataset_Incident[i] = row
                     replaced = True
                 i += 1
             if replaced is False:
                 current_dataset_Incident.append(row)
-                print "[UPDATE] New Row Appended: ", row_id
-
-        print "[INFO] Incident Dataset in memory updated"
-    pickle_file = fileDir + "pickle_temp_Incident"
-    # pickle_file = "E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\pickle_temp_Incident"
+                file_changes.write("[APPEND] New Row Appended: " + str(row_id) + "\n")
+                rows_appended_count += 1
+        print "[INFO] Incident Dataset is updated with received data"
+        print "[INFO] No. of rows updated: ", rows_updated_count, " | No. of rows appended: ", rows_appended_count, "Details recorded in .change file"
+    file_changes.close()
+    
+    pickle_file = fileDir + "Incident_cache"
     with open(pickle_file,'wb') as f:
         pickle.dump(current_dataset_Incident,f)
-    print "[INFO] Incident Data Cached in local file"
+    print "[INFO] Incident Data cached in local file"
 
     header = list(set(header))
     header.sort()
     header = [e for e in header if e not in ('features_properties_additionalInfo_0','features_properties_adviceA','features_properties_adviceB', 'features_properties_arrangementAttachments_0_displayName', 'features_properties_arrangementAttachments_0_fileName', 'features_properties_arrangementAttachments_0_fileType', 'features_properties_arrangementAttachments_0_linkName', 'features_properties_arrangementAttachments_0_sizeInBytes', 'features_properties_arrangementAttachments_0_uniqueFileName', 'features_properties_arrangementAttachments_1_displayName', 'features_properties_arrangementAttachments_1_fileName', 'features_properties_arrangementAttachments_1_fileType', 'features_properties_arrangementAttachments_1_linkName', 'features_properties_arrangementAttachments_1_sizeInBytes', 'features_properties_arrangementAttachments_1_uniqueFileName', 'features_properties_arrangementAttachments_2_displayName', 'features_properties_arrangementAttachments_2_fileName', 'features_properties_arrangementAttachments_2_fileType', 'features_properties_arrangementAttachments_2_linkName', 'features_properties_arrangementAttachments_2_sizeInBytes', 'features_properties_arrangementAttachments_2_uniqueFileName', 'features_properties_arrangementAttachments_3_displayName', 'features_properties_arrangementAttachments_3_fileName', 'features_properties_arrangementAttachments_3_fileType', 'features_properties_arrangementAttachments_3_linkName', 'features_properties_arrangementAttachments_3_sizeInBytes', 'features_properties_arrangementAttachments_3_uniqueFileName', 'features_properties_arrangementElements_0_html', 'features_properties_arrangementElements_0_title', 'features_properties_arrangementElements_1_html', 'features_properties_arrangementElements_1_title', 'features_properties_arrangementElements_2_html', 'features_properties_arrangementElements_2_title')]
     header = [e for e in header if e not in ('features_properties_attendingGroups_0')]
     header = [e for e in header if e not in ('features_properties_subCategoryA', 'features_properties_subCategoryB', 'features_properties_webLinkName', 'features_properties_webLinkUrl', 'features_properties_webLinks_0_linkText', 'features_properties_webLinks_0_linkURL', 'features_type')]
-    # print header
     removed_e = ('features_properties_additionalInfo_0','features_properties_adviceA','features_properties_adviceB', 'features_properties_arrangementAttachments_0_displayName', 'features_properties_arrangementAttachments_0_fileName', 'features_properties_arrangementAttachments_0_fileType', 'features_properties_arrangementAttachments_0_linkName', 'features_properties_arrangementAttachments_0_sizeInBytes', 'features_properties_arrangementAttachments_0_uniqueFileName', 'features_properties_arrangementAttachments_1_displayName', 'features_properties_arrangementAttachments_1_fileName', 'features_properties_arrangementAttachments_1_fileType', 'features_properties_arrangementAttachments_1_linkName', 'features_properties_arrangementAttachments_1_sizeInBytes', 'features_properties_arrangementAttachments_1_uniqueFileName', 'features_properties_arrangementAttachments_2_displayName', 'features_properties_arrangementAttachments_2_fileName', 'features_properties_arrangementAttachments_2_fileType', 'features_properties_arrangementAttachments_2_linkName', 'features_properties_arrangementAttachments_2_sizeInBytes', 'features_properties_arrangementAttachments_2_uniqueFileName', 'features_properties_arrangementAttachments_3_displayName', 'features_properties_arrangementAttachments_3_fileName', 'features_properties_arrangementAttachments_3_fileType', 'features_properties_arrangementAttachments_3_linkName', 'features_properties_arrangementAttachments_3_sizeInBytes', 'features_properties_arrangementAttachments_3_uniqueFileName', 'features_properties_arrangementElements_0_html', 'features_properties_arrangementElements_0_title', 'features_properties_arrangementElements_1_html', 'features_properties_arrangementElements_1_title', 'features_properties_arrangementElements_2_html', 'features_properties_arrangementElements_2_title','features_properties_attendingGroups_0','features_properties_subCategoryA', 'features_properties_subCategoryB', 'features_properties_webLinkName', 'features_properties_webLinkUrl', 'features_properties_webLinks_0_linkText', 'features_properties_webLinks_0_linkURL', 'features_type')
     
     # processed_data is the final data
-
     with open(csv_file_path, 'w+') as f:
         writer = csv.DictWriter(f, header, quoting=csv.QUOTE_ALL)
         writer.writeheader()
-        global current_dataset_Incident
         for row in current_dataset_Incident:
             for k in removed_e:
                 row.pop(k,None)
@@ -386,62 +275,159 @@ def JSONconvert_Incident(node,json_file_path,csv_file_path):
             except:
                 pass
 
-    print ("[INFO] Completed writing csv file with %d columns" % len(header))
-
-def check_Incident():
-    url = "http://data.livetraffic.com/traffic/hazards/incident.json"
-
-    response = urllib.urlopen(url)
+def check():
+    Incident_url = "http://data.livetraffic.com/traffic/hazards/incident.json"
+    Incident_response = urllib.urlopen(Incident_url)
     # load JSON file
-    majorevent = json.loads(response.read())
-    print("[INFO] URL checked")
+    Incident_received = json.loads(Incident_response.read())
+    print;print("[INFO] Incident data URL checked")
 
-    majorevent_time_mark = majorevent['lastPublished']
-    print "[INFO] Received time stamp: ", majorevent_time_mark
-    # majorevent_parsed = majorevent['features']
+    Incident_received_time_mark = Incident_received['lastPublished']
+    print "[INFO] Incident Received time stamp: ", Incident_received_time_mark
 
-    global starttime_int
-    RecordFileNameDir = fileDir + 'Incident_update_history_%d.txt'
-    RecordFileName = (RecordFileNameDir % starttime_int) 
-    # RecordFileName = ('E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\Incident_update_history_%d.txt' % starttime_int) 
-    with open(RecordFileName,'a+') as majorevent_record:
+    Incident_RecordFileName = fileDir + 'Incident_update_history.txt'
 
-        try:
-            latest_time_mark = majorevent_record.readlines()[-1]
-            print"[INFO] Currently recorded time stamp: ", latest_time_mark
-        except:
-            latest_time_mark = str(0000000000000)
-            print"[INFO] No existing time stamp recorded"
+    with open(Incident_RecordFileName,'a+') as Incident_record:
+        
+        latest_time_mark = Incident_record.readlines()[-1] #read the last line, assume if the program has iterated more than once
+        if latest_time_mark[:1] == '>' or latest_time_mark[:1] == 'P': # this means that the program has just started
+            Incident_record.seek(0)
+            try: #try to find the last line from the last run
+                latest_time_mark = Incident_record.readlines()[-3] #Assumption! that program at least updates once for each run
+                print"[INFO] Currently recorded Incident data time stamp: (from last run) ", latest_time_mark
+            except: #out of range for Index, meaning that the history data has just been created, no previous record
+                print"[INFO] No existing Incident data time stamp recorded in history"
+                latest_time_mark = str(0000000000000)
+        else: #last line found, meaning that the program has iterated for at least one time
+            print"[INFO] Currently recorded time stamp: (from last iteration) ", latest_time_mark
 
-        if int(majorevent_time_mark) > int(latest_time_mark[:13]):
-            print "[INFO] New Data Arrived"
-            majorevent_record.write( str(majorevent_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '  NEW' +'\n')
+        if int(Incident_received_time_mark) > int(latest_time_mark[:13]):
+            print "[INFO] New Incident Data Arrived"
+            Incident_record.write( str(Incident_received_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '  NEW' +'\n')
 
-            # open a file for writing, default in C:
             mkdir_p(fileDir)
-            # mkdir_p('E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData')
+            Incident_fileNameDir = fileDir + "Incident_%d_%d.csv"
+            Incident_fileName = (Incident_fileNameDir % (starttime_int,total_count))
+            Incident_fileChange = Incident_fileName + ".change"
+            JSONconvert_Incident('features', Incident_received, Incident_fileName,Incident_fileChange)
+            print "[INFO] Updating Incident data finished"
 
-            global total_count
-            global starttime_int
-            fileNameDir = fileDir + "Incident_%d_%d.csv"
-            fileName = (fileNameDir % (starttime_int,total_count))
-            # fileName = ("E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\Incident_%d_%d.csv" % (starttime_int,total_count))
-            JSONconvert_Incident('features', url, fileName)
-            print "[INFO] Updating finished"
-        elif int(majorevent_time_mark) == int(latest_time_mark[:13]):
-            majorevent_record.write( str(majorevent_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'\n')
-            print "[INFO] No new data"
-        elif int(majorevent_time_mark) < int(latest_time_mark[:13]):
-            majorevent_record.write( str(int(latest_time_mark[:13]))+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'  DISCARD: '+str(majorevent_time_mark)+'\n')
-            print "[INFO] Receive and discard old data"
+        elif int(Incident_received_time_mark) == int(latest_time_mark[:13]):
+            Incident_record.write( str(Incident_received_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'\n')
+            print "[INFO] No new Incident data"
+        elif int(Incident_received_time_mark) < int(latest_time_mark[:13]):
+            Incident_record.write( str(int(latest_time_mark[:13]))+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'  DISCARD: '+str(Incident_received_time_mark)+'\n')
+            print "[INFO] Receive and discard old Incident data"
         else:
-            print "[ERROR] unexpected"
+            print "[ERROR] unexpected (Incident data)"
+            
+            os.pause()
+    
+    MajorEvent_url = "http://data.livetraffic.com/traffic/hazards/majorevent.json"
+    MajorEvent_response = urllib.urlopen(MajorEvent_url)
+    # load JSON file
+    MajorEvent_received = json.loads(MajorEvent_response.read())
+    print;print("[INFO] MajorEvent URL checked")
 
+    MajorEvent_received_time_mark = MajorEvent_received['lastPublished']
+    print "[INFO] MajorEvent Received time stamp: ", MajorEvent_received_time_mark
+
+    MajorEvent_RecordFileName = fileDir + 'MajorEvent_update_history.txt'
+
+    with open(MajorEvent_RecordFileName,'a+') as MajorEvent_record:
+        
+        latest_time_mark = MajorEvent_record.readlines()[-1] #read the last line, assume if the program has iterated more than once
+        if latest_time_mark[:1] == '>' or latest_time_mark[:1] == 'P': # this means that the program has just started
+            MajorEvent_record.seek(0)
+            try: #try to find the last line from the last run
+                latest_time_mark = MajorEvent_record.readlines()[-3] #Assumption! that program at least updates once for each run
+                print"[INFO] Currently recorded MajorEvent data time stamp: (from last run) ", latest_time_mark
+            except: #out of range for Index, meaning that the history data has just been created, no previous record
+                print"[INFO] No existing time stamp recorded in history"
+                latest_time_mark = str(0000000000000)
+        else: #last line found, meaning that the program has iterated for at least one time
+            print"[INFO] Currently recorded MajorEvent data time stamp: (from last iteration) ", latest_time_mark
+
+        if int(MajorEvent_received_time_mark) > int(latest_time_mark[:13]):
+            print "[INFO] New MajorEvent Data Arrived"
+            MajorEvent_record.write( str(MajorEvent_received_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '  NEW' +'\n')
+
+            mkdir_p(fileDir)
+            MajorEvent_fileNameDir = fileDir + "MajorEvent_%d_%d.csv"
+            MajorEvent_fileName = (MajorEvent_fileNameDir % (starttime_int,total_count))
+            MajorEvent_fileChange = MajorEvent_fileName + ".change"
+            JSONconvert_MajorEvent('features', MajorEvent_received, MajorEvent_fileName,MajorEvent_fileChange)
+            print "[INFO] Updating MajorEvent data finished"
+
+        elif int(MajorEvent_received_time_mark) == int(latest_time_mark[:13]):
+            MajorEvent_record.write( str(MajorEvent_received_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'\n')
+            print "[INFO] No new MajorEvent data"
+        elif int(MajorEvent_received_time_mark) < int(latest_time_mark[:13]):
+            MajorEvent_record.write( str(int(latest_time_mark[:13]))+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'  DISCARD: '+str(MajorEvent_received_time_mark)+'\n')
+            print "[INFO] Receive and discard old MajorEvent data"
+        else:
+            print "[ERROR] unexpected (MajorEvent)"
+            
+            os.pause()
     
+
+    Roadwork_url = "http://data.livetraffic.com/traffic/hazards/roadwork.json"
+    Roadwork_response = urllib.urlopen(Roadwork_url)
+    # load JSON file
+    Roadwork_received = json.loads(Roadwork_response.read())
+    print;print("[INFO] Roadwork URL checked")
+
+    Roadwork_received_time_mark = Roadwork_received['lastPublished']
+    print "[INFO] Roadwork Received time stamp: ", Roadwork_received_time_mark
+
+    Roadwork_RecordFileName = fileDir + 'Roadwork_update_history.txt'
+
+    with open(Roadwork_RecordFileName,'a+') as Roadwork_record:
+        
+        latest_time_mark = Roadwork_record.readlines()[-1] #read the last line, assume if the program has iterated more than once
+        if latest_time_mark[:1] == '>' or latest_time_mark[:1] == 'P': # this means that the program has just started
+            Roadwork_record.seek(0)
+            try: #try to find the last line from the last run
+                latest_time_mark = Roadwork_record.readlines()[-3] #Assumption! that program at least updates once for each run
+                print"[INFO] Currently recorded Roadwork data time stamp: (from last run) ", latest_time_mark
+            except: #out of range for Index, meaning that the history data has just been created, no previous record
+                print"[INFO] No existing Roadwork data time stamp recorded in history"
+                latest_time_mark = str(0000000000000)
+        else: #last line found, meaning that the program has iterated for at least one time
+            print"[INFO] Currently recorded Roadwork data time stamp: (from last iteration) ", latest_time_mark
+
+        if int(Roadwork_received_time_mark) > int(latest_time_mark[:13]):
+            print "[INFO] New Roadwork Data Arrived"
+            Roadwork_record.write( str(Roadwork_received_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '  NEW' +'\n')
+
+            mkdir_p(fileDir)
+            Roadwork_fileNameDir = fileDir + "Roadwork_%d_%d.csv"
+            Roadwork_fileName = (Roadwork_fileNameDir % (starttime_int,total_count))
+            Roadwork_fileChange = Roadwork_fileName + ".change"
+            JSONconvert_Roadwork('features', Roadwork_received, Roadwork_fileName,Roadwork_fileChange)
+            print "[INFO] Updating Roadwork data finished"
+
+        elif int(Roadwork_received_time_mark) == int(latest_time_mark[:13]):
+            Roadwork_record.write( str(Roadwork_received_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'\n')
+            print "[INFO] No new Roadwork data"
+        elif int(Roadwork_received_time_mark) < int(latest_time_mark[:13]):
+            Roadwork_record.write( str(int(latest_time_mark[:13]))+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'  DISCARD: '+str(Roadwork_received_time_mark)+'\n')
+            print "[INFO] Receive and discard old Roadwork data"
+        else:
+            print "[ERROR] unexpected (Roadwork)"
+            
+            os.pause()
+
+
+
 if __name__ == "__main__":
-    
+    starttime=time.time()
+    starttime_int = int(time.time())
+    starttime_str = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+    total_count = 0
+
     fileDir_prefix = "C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\\"
-    fileDir_folder = "LiveTrafficData\\"
+    fileDir_folder = "LiveTrafficDataTest\\"
     global fileDir
     fileDir = fileDir_prefix + fileDir_folder
     
@@ -450,56 +436,61 @@ if __name__ == "__main__":
     current_dataset_MajorEvent = []
     current_dataset_Incident = []
 
-    pickle_file_Roadwork = fileDir + "pickle_temp_Roadwork"
-    pickle_file_Incident = fileDir + "pickle_temp_Incident"
-    pickle_file_MajorEvent = fileDir + "pickle_temp_MajorEvent"
+    pickle_file_Roadwork = fileDir + "Roadwork_cache"
+    pickle_file_Incident = fileDir + "Incident_cache"
+    pickle_file_MajorEvent = fileDir + "MajorEvent_cache"
 
     try:
         with open(pickle_file_Roadwork,'rb') as f:
-            global current_dataset_Roadwork
             current_dataset_Roadwork = pickle.load(f)
-        print "[INFO] Roadwork Cache read successfully"
+        print "[INFO] Roadwork cache read successfully"
     except:
+        print "[INFO] Roadwork cache not found, will create a new one"
         pass
         
     try:
         with open(pickle_file_MajorEvent,'rb') as f:
-            global current_dataset_MajorEvent
             current_dataset_MajorEvent = pickle.load(f)
-        print "[INFO] MajorEvent Cache read successfully"
+        print "[INFO] MajorEvent cache read successfully"
     except:
+        print "[INFO] MajorEvent cache not found, will create a new one"
         pass
 
     try:
         with open(pickle_file_Incident,'rb') as f:
-            global current_dataset_Incident
             current_dataset_Incident = pickle.load(f)
-        print "[INFO] IncidentCache read successfully"
+        print "[INFO] Incident cache read successfully"
     except:
+        print "[INFO] Incident cache not found, will create a new one"
         pass
 
-    starttime=time.time()
+    MajorEvent_RecordFileName = fileDir + 'MajorEvent_update_history.txt'
+    with open(MajorEvent_RecordFileName,'a+') as f:
+        f.write ('>>>' +'\n')
+        f.write ('Program started at ' + str(starttime_int) + ' @' + starttime_str + '\n')
 
-    global starttime_int
-    starttime_int = int(time.time())
+    Roadwork_RecordFileName = fileDir + 'Roadwork_update_history.txt'
+    with open(Roadwork_RecordFileName,'a+') as f:
+        f.write ('>>>' +'\n')
+        f.write ('Program started at ' + str(starttime_int) + ' @' + starttime_str + '\n')
 
-    global total_count
-    total_count = 0
+    Incident_RecordFileName = fileDir + 'Incident_update_history.txt'
+    with open(Incident_RecordFileName,'a+') as f:
+        f.write ('>>>' +'\n')
+        f.write ('Program started at ' + str(starttime_int) + ' @' + starttime_str + '\n')
+
+    print "[INFO] History record prepared"
 
     while True:
-        print '====================================='
-        global total_count
+        print; print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
         total_count += 1
-        check_Roadwork()
-        print "[INFO] Roadwork checked successfully"
-        check_Incident()
-        print "[INFO] Incident checked successfully"
-        check_MajorEvent()
-        print "[INFO] MajorEvent checked successfully"
 
-        print; print "[DONE] Finished checking, iteration: ", total_count
-        print '====================================='
-        for i in xrange(1800,0,-1):
+        check()
+
+        print; print "[INFO] Finished updating, This is the ", total_count, "th update"
+        print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'; print
+
+        for i in xrange(900,0,-1):
             time.sleep(1)
             sys.stdout.write( '\rCountdown for next update: %04s' % str(i))
             sys.stdout.flush()

@@ -7,8 +7,6 @@ import datetime
 from time import gmtime, strftime
 import time
 import pickle
-import Tkinter as tk
-
 
 def mkdir_p(path):
     try:
@@ -19,14 +17,12 @@ def mkdir_p(path):
         else:
             raise
 
-
 def to_string(s):
     try:
         return str(s)
     except:
         #Change the encoding type if needed
         return s.encode('utf-8')
-
 
 def reduce_item(key, value):
     global reduced_item
@@ -48,14 +44,8 @@ def reduce_item(key, value):
     else:
         reduced_item[to_string(key)] = to_string(value)
 
+def JSONconvert_Roadwork(node,raw_data,csv_file_path):
 
-def JSONconvert_Roadwork(node,json_file_path,csv_file_path):
-
-    response = urllib.urlopen(json_file_path)
-    # load JSON file
-    print("[INFO] URL load complete")
-
-    raw_data = json.loads(response.read())
     try:
         data_to_be_processed = raw_data[node]
     except:
@@ -87,7 +77,7 @@ def JSONconvert_Roadwork(node,json_file_path,csv_file_path):
             replaced = False
             for row_compare in current_dataset_Roadwork:
                 if row_compare['features_id'] == row_id:
-                    print "[UPDATE] Row updated with id: ", row_id
+                    # print "[UPDATE] Row updated with id: ", row_id
                     current_dataset_Roadwork[i] = row
                     replaced = True
                 i += 1
@@ -117,7 +107,6 @@ def JSONconvert_Roadwork(node,json_file_path,csv_file_path):
     with open(csv_file_path, 'w+') as f:
         writer = csv.DictWriter(f, header, quoting=csv.QUOTE_ALL)
         writer.writeheader()
-        global current_dataset_Roadwork
         for row in current_dataset_Roadwork:
             for k in removed_e:
                 row.pop(k,None)
@@ -126,69 +115,10 @@ def JSONconvert_Roadwork(node,json_file_path,csv_file_path):
             except:
                 pass
 
-
-
     print ("[INFO] Completed writing csv file with %d columns" % len(header))
 
-def check_Roadwork():
-    url = "http://data.livetraffic.com/traffic/hazards/roadwork.json"
+def JSONconvert_MajorEvent(node,raw_data,csv_file_path):
 
-    response = urllib.urlopen(url)
-    # load JSON file
-    majorevent = json.loads(response.read())
-    print("[INFO] URL checked")
-
-    majorevent_time_mark = majorevent['lastPublished']
-    print "[INFO] Received time stamp: ", majorevent_time_mark
-    # majorevent_parsed = majorevent['features']
-
-    global starttime_int
-
-    RecordFileNameDir = fileDir + 'Roadwork_update_history_%d.txt'
-    RecordFileName = (RecordFileNameDir % starttime_int) 
-
-    with open(RecordFileName,'a+') as majorevent_record:
-
-        try:
-            latest_time_mark = majorevent_record.readlines()[-1]
-            print"[INFO] Currently recorded time stamp: ", latest_time_mark
-        except:
-            latest_time_mark = str(0000000000000)
-            print"[INFO] No existing time stamp recorded"
-
-        if int(majorevent_time_mark) > int(latest_time_mark[:13]):
-            print "[INFO] New Data Arrived"
-            majorevent_record.write( str(majorevent_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '  NEW' +'\n')
-
-            # open a file for writing, default in C:
-            
-            mkdir_p(fileDir)
-            # mkdir_p('E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData')
-
-            global total_count
-            global starttime_int
-
-            fileNameDir = fileDir + "Roadwork_%d_%d.csv"
-            fileName = (fileNameDir % (starttime_int,total_count))
-
-            JSONconvert_Roadwork('features', url, fileName)
-            print "[INFO] Updating finished"
-        elif int(majorevent_time_mark) == int(latest_time_mark[:13]):
-            majorevent_record.write( str(majorevent_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'\n')
-            print "[INFO] No new data"
-        elif int(majorevent_time_mark) < int(latest_time_mark[:13]):
-            majorevent_record.write( str(int(latest_time_mark[:13]))+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'  DISCARD: '+str(majorevent_time_mark)+'\n')
-            print "[INFO] Receive and discard old data"
-        else:
-            print "[ERROR] unexpected"
-
-def JSONconvert_MajorEvent(node,json_file_path,csv_file_path):
-    
-    response = urllib.urlopen(json_file_path)
-    # load JSON file
-    print("[INFO] URL load complete")
-
-    raw_data = json.loads(response.read())
     try:
         data_to_be_processed = raw_data[node]
     except:
@@ -249,7 +179,6 @@ def JSONconvert_MajorEvent(node,json_file_path,csv_file_path):
     with open(csv_file_path, 'w+') as f:
         writer = csv.DictWriter(f, header, quoting=csv.QUOTE_ALL)
         writer.writeheader()
-        global current_dataset_MajorEvent
         for row in current_dataset_MajorEvent:
             for k in removed_e:
                 row.pop(k,None)
@@ -260,64 +189,8 @@ def JSONconvert_MajorEvent(node,json_file_path,csv_file_path):
 
     print ("[INFO] Completed writing csv file with %d columns" % len(header))
 
-def check_MajorEvent():
-    url = "http://data.livetraffic.com/traffic/hazards/majorevent.json"
+def JSONconvert_Incident(node,raw_data,csv_file_path):
 
-    response = urllib.urlopen(url)
-    # load JSON file
-    majorevent = json.loads(response.read())
-    print("[INFO] URL checked")
-
-    majorevent_time_mark = majorevent['lastPublished']
-    print "[INFO] Received time stamp: ", majorevent_time_mark
-    # majorevent_parsed = majorevent['features']
-
-    global starttime_int
-    RecordFileNameDir = fileDir + 'MajorEvent_update_history_%d.txt'
-    RecordFileName = (RecordFileNameDir % starttime_int) 
-    # RecordFileName = ('E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\MajorEvent_update_history_%d.txt' % starttime_int) 
-
-    with open(RecordFileName,'a+') as majorevent_record:
-
-        try:
-            latest_time_mark = majorevent_record.readlines()[-1]
-            print"[INFO] Currently recorded time stamp: ", latest_time_mark
-        except:
-            latest_time_mark = str(0000000000000)
-            print"[INFO] No existing time stamp recorded"
-
-        if int(majorevent_time_mark) > int(latest_time_mark[:13]):
-            print "[INFO] New Data Arrived"
-            majorevent_record.write( str(majorevent_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '  NEW' +'\n')
-
-            # open a file for writing, default in C:
-            mkdir_p(fileDir)
-            # mkdir_p('E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData')
-
-            global total_count
-            global starttime_int
-            fileNameDir = fileDir + "MajorEvent_%d_%d.csv"
-            fileName = (fileNameDir % (starttime_int,total_count))
-            # fileName = ("E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\MajorEvent_%d_%d.csv" % (starttime_int,total_count))
-            
-            JSONconvert_MajorEvent('features', url, fileName)
-            print "[INFO] Updating finished"
-        elif int(majorevent_time_mark) == int(latest_time_mark[:13]):
-            majorevent_record.write( str(majorevent_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'\n')
-            print "[INFO] No new data"
-        elif int(majorevent_time_mark) < int(latest_time_mark[:13]):
-            majorevent_record.write( str(int(latest_time_mark[:13]))+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'  DISCARD: '+str(majorevent_time_mark)+'\n')
-            print "[INFO] Receive and discard old data"
-        else:
-            print "[ERROR] unexpected"
-
-def JSONconvert_Incident(node,json_file_path,csv_file_path):
-    
-    response = urllib.urlopen(json_file_path)
-    # load JSON file
-    print("[INFO] URL load complete")
-
-    raw_data = json.loads(response.read())
     try:
         data_to_be_processed = raw_data[node]
     except:
@@ -377,7 +250,6 @@ def JSONconvert_Incident(node,json_file_path,csv_file_path):
     with open(csv_file_path, 'w+') as f:
         writer = csv.DictWriter(f, header, quoting=csv.QUOTE_ALL)
         writer.writeheader()
-        global current_dataset_Incident
         for row in current_dataset_Incident:
             for k in removed_e:
                 row.pop(k,None)
@@ -388,56 +260,132 @@ def JSONconvert_Incident(node,json_file_path,csv_file_path):
 
     print ("[INFO] Completed writing csv file with %d columns" % len(header))
 
-def check_Incident():
-    url = "http://data.livetraffic.com/traffic/hazards/incident.json"
-
-    response = urllib.urlopen(url)
+def check():
+    Incident_url = "http://data.livetraffic.com/traffic/hazards/incident.json"
+    Incident_response = urllib.urlopen(Incident_url)
     # load JSON file
-    majorevent = json.loads(response.read())
+    Incident_received = json.loads(Incident_response.read())
     print("[INFO] URL checked")
 
-    majorevent_time_mark = majorevent['lastPublished']
-    print "[INFO] Received time stamp: ", majorevent_time_mark
-    # majorevent_parsed = majorevent['features']
+    Incident_received_time_mark = Incident_received['lastPublished']
+    print "[INFO] Incident Received time stamp: ", Incident_received_time_mark
 
-    global starttime_int
-    RecordFileNameDir = fileDir + 'Incident_update_history_%d.txt'
-    RecordFileName = (RecordFileNameDir % starttime_int) 
-    # RecordFileName = ('E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\Incident_update_history_%d.txt' % starttime_int) 
-    with open(RecordFileName,'a+') as majorevent_record:
+    Incident_RecordFileNameDir = fileDir + 'Incident_update_history_%d.txt'
+    Incident_RecordFileName = (Incident_RecordFileNameDir % starttime_int) 
 
+    with open(Incident_RecordFileName,'a+') as Incident_record:
         try:
-            latest_time_mark = majorevent_record.readlines()[-1]
+            latest_time_mark = Incident_record.readlines()[-1]
             print"[INFO] Currently recorded time stamp: ", latest_time_mark
         except:
             latest_time_mark = str(0000000000000)
             print"[INFO] No existing time stamp recorded"
 
-        if int(majorevent_time_mark) > int(latest_time_mark[:13]):
+        if int(Incident_received_time_mark) > int(latest_time_mark[:13]):
             print "[INFO] New Data Arrived"
-            majorevent_record.write( str(majorevent_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '  NEW' +'\n')
+            Incident_record.write( str(Incident_received_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '  NEW' +'\n')
 
-            # open a file for writing, default in C:
             mkdir_p(fileDir)
-            # mkdir_p('E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData')
+            Incident_fileNameDir = fileDir + "Incident_%d_%d.csv"
+            Incident_fileName = (Incident_fileNameDir % (starttime_int,total_count))
 
-            global total_count
-            global starttime_int
-            fileNameDir = fileDir + "Incident_%d_%d.csv"
-            fileName = (fileNameDir % (starttime_int,total_count))
-            # fileName = ("E:\OneDrive - Australian National University\Internship\CSIRO43691\LiveTrafficData\Incident_%d_%d.csv" % (starttime_int,total_count))
-            JSONconvert_Incident('features', url, fileName)
+            JSONconvert_Incident('features', Incident_received, Incident_fileName)
             print "[INFO] Updating finished"
-        elif int(majorevent_time_mark) == int(latest_time_mark[:13]):
-            majorevent_record.write( str(majorevent_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'\n')
+
+        elif int(Incident_received_time_mark) == int(latest_time_mark[:13]):
+            Incident_record.write( str(Incident_received_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'\n')
             print "[INFO] No new data"
-        elif int(majorevent_time_mark) < int(latest_time_mark[:13]):
-            majorevent_record.write( str(int(latest_time_mark[:13]))+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'  DISCARD: '+str(majorevent_time_mark)+'\n')
+        elif int(Incident_received_time_mark) < int(latest_time_mark[:13]):
+            Incident_record.write( str(int(latest_time_mark[:13]))+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'  DISCARD: '+str(Incident_received_time_mark)+'\n')
             print "[INFO] Receive and discard old data"
         else:
             print "[ERROR] unexpected"
-
+            pause()
     
+    MajorEvent_url = "http://data.livetraffic.com/traffic/hazards/majorevent.json"
+    MajorEvent_response = urllib.urlopen(MajorEvent_url)
+    # load JSON file
+    MajorEvent_received = json.loads(MajorEvent_response.read())
+    print("[INFO] URL checked")
+
+    MajorEvent_received_time_mark = MajorEvent_received['lastPublished']
+    print "[INFO] MajorEvent Received time stamp: ", MajorEvent_received_time_mark
+
+    MajorEvent_RecordFileNameDir = fileDir + 'MajorEvent_update_history_%d.txt'
+    MajorEvent_RecordFileName = (MajorEvent_RecordFileNameDir % starttime_int) 
+
+    with open(MajorEvent_RecordFileName,'a+') as MajorEvent_record:
+        try:
+            latest_time_mark = MajorEvent_record.readlines()[-1]
+            print"[INFO] Currently recorded time stamp: ", latest_time_mark
+        except:
+            latest_time_mark = str(0000000000000)
+            print"[INFO] No existing time stamp recorded"
+
+        if int(MajorEvent_received_time_mark) > int(latest_time_mark[:13]):
+            print "[INFO] New Data Arrived"
+            MajorEvent_record.write( str(MajorEvent_received_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '  NEW' +'\n')
+
+            mkdir_p(fileDir)
+            MajorEvent_fileNameDir = fileDir + "MajorEvent_%d_%d.csv"
+            MajorEvent_fileName = (MajorEvent_fileNameDir % (starttime_int,total_count))
+
+            JSONconvert_MajorEvent('features', MajorEvent_received, MajorEvent_fileName)
+            print "[INFO] Updating finished"
+
+        elif int(MajorEvent_received_time_mark) == int(latest_time_mark[:13]):
+            MajorEvent_record.write( str(MajorEvent_received_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'\n')
+            print "[INFO] No new data"
+        elif int(MajorEvent_received_time_mark) < int(latest_time_mark[:13]):
+            MajorEvent_record.write( str(int(latest_time_mark[:13]))+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'  DISCARD: '+str(MajorEvent_received_time_mark)+'\n')
+            print "[INFO] Receive and discard old data"
+        else:
+            print "[ERROR] unexpected"
+            pause()
+
+    Roadwork_url = "http://data.livetraffic.com/traffic/hazards/roadwork.json"
+    Roadwork_response = urllib.urlopen(Roadwork_url)
+    # load JSON file
+    Roadwork_received = json.loads(Roadwork_response.read())
+    print("[INFO] URL checked")
+
+    Roadwork_received_time_mark = Roadwork_received['lastPublished']
+    print "[INFO] Roadwork Received time stamp: ", Roadwork_received_time_mark
+
+    Roadwork_RecordFileNameDir = fileDir + 'Roadwork_update_history_%d.txt'
+    Roadwork_RecordFileName = (Roadwork_RecordFileNameDir % starttime_int) 
+
+    with open(Roadwork_RecordFileName,'a+') as Roadwork_record:
+        try:
+            latest_time_mark = Roadwork_record.readlines()[-1]
+            print"[INFO] Currently recorded time stamp: ", latest_time_mark
+        except:
+            latest_time_mark = str(0000000000000)
+            print"[INFO] No existing time stamp recorded"
+
+        if int(Roadwork_received_time_mark) > int(latest_time_mark[:13]):
+            print "[INFO] New Data Arrived"
+            Roadwork_record.write( str(Roadwork_received_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) + '  NEW' +'\n')
+
+            mkdir_p(fileDir)
+            Roadwork_fileNameDir = fileDir + "Roadwork_%d_%d.csv"
+            Roadwork_fileName = (Roadwork_fileNameDir % (starttime_int,total_count))
+
+            JSONconvert_Roadwork('features', Roadwork_received, Roadwork_fileName)
+            print "[INFO] Updating finished"
+
+        elif int(Roadwork_received_time_mark) == int(latest_time_mark[:13]):
+            Roadwork_record.write( str(Roadwork_received_time_mark)+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'\n')
+            print "[INFO] No new data"
+        elif int(Roadwork_received_time_mark) < int(latest_time_mark[:13]):
+            Roadwork_record.write( str(int(latest_time_mark[:13]))+'  @'+ strftime("%Y-%m-%d %H:%M:%S", gmtime()) +'  DISCARD: '+str(Roadwork_received_time_mark)+'\n')
+            print "[INFO] Receive and discard old data"
+        else:
+            print "[ERROR] unexpected"
+            pause()
+
+
+
 if __name__ == "__main__":
     
     fileDir_prefix = "C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\\"
@@ -456,7 +404,7 @@ if __name__ == "__main__":
 
     try:
         with open(pickle_file_Roadwork,'rb') as f:
-            global current_dataset_Roadwork
+
             current_dataset_Roadwork = pickle.load(f)
         print "[INFO] Roadwork Cache read successfully"
     except:
@@ -464,7 +412,7 @@ if __name__ == "__main__":
         
     try:
         with open(pickle_file_MajorEvent,'rb') as f:
-            global current_dataset_MajorEvent
+
             current_dataset_MajorEvent = pickle.load(f)
         print "[INFO] MajorEvent Cache read successfully"
     except:
@@ -472,33 +420,25 @@ if __name__ == "__main__":
 
     try:
         with open(pickle_file_Incident,'rb') as f:
-            global current_dataset_Incident
+
             current_dataset_Incident = pickle.load(f)
         print "[INFO] IncidentCache read successfully"
     except:
         pass
 
     starttime=time.time()
-
-    global starttime_int
     starttime_int = int(time.time())
-
-    global total_count
     total_count = 0
 
     while True:
-        print '====================================='
-        global total_count
+        print; print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
         total_count += 1
-        check_Roadwork()
-        print "[INFO] Roadwork checked successfully"
-        check_Incident()
-        print "[INFO] Incident checked successfully"
-        check_MajorEvent()
-        print "[INFO] MajorEvent checked successfully"
 
-        print; print "[DONE] Finished checking, iteration: ", total_count
-        print '====================================='
+        check()
+
+        print; print "[INFO] Finished updating, count: ", total_count
+        print '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
         for i in xrange(1800,0,-1):
             time.sleep(1)
             sys.stdout.write( '\rCountdown for next update: %04s' % str(i))
