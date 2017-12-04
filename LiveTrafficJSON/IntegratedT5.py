@@ -427,7 +427,7 @@ if __name__ == "__main__":
     total_count = 0
 
     fileDir_prefix = "C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\\"
-    fileDir_folder = "LiveTrafficDataTest\\"
+    fileDir_folder = "LiveTrafficData\\"
     global fileDir
     fileDir = fileDir_prefix + fileDir_folder
     
