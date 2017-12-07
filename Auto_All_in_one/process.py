@@ -12,6 +12,7 @@ from Tkinter import Tk
 from Tkinter import *
 from tkFileDialog import askopenfilename
 from tkFileDialog import askdirectory
+import shutil
 
 def get_dir():
     # dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -94,7 +95,7 @@ def process_header(file,output_file):
         marked_column = [i for i,x in enumerate(new_header) if (x in delete_list) or (x[:5] =='media') or (x[:7]=='webLink')]    
         marked_column.sort(reverse=True)
 
-        time_elements = ['system_record_created_at','lastUpdated','scheduled_start_time','scheduled_end_time']
+        time_elements = ['system_record_created_at','last_updated_at','scheduled_start_time','scheduled_end_time']
         timestamp_column = [i for i,x in enumerate(new_header) if (x in time_elements)]    
 
         
@@ -117,30 +118,54 @@ def process_header(file,output_file):
 #         rdr= csv.reader(f)
         
 
-if __name__ == "__main__":
+def main(isAuto,fileList):
+    Dropbox_dir = "C:\Users\LIU136\Dropbox\David Liu Internship\LiveTrafficData\\"
+    upload_file_name = ""
     filePath = get_dir()
     fileName = []
-    print "csv Files within the directory:"; print(glob.glob(filePath + "/*.csv")); print "\n"
-    UserChoice = choose_file()
-    if UserChoice == '':
-        os.chdir(filePath)
-        for ff in glob.glob("*.csv"):
-            if ff[-13:] != 'processed.csv':
-                fileName.append(filePath +  "\\" + ff)
-                print "File added: ", filePath +  "\\" + ff
-            else:
-                print "File skipped: ", filePath +  "\\" + ff
-    else:
-        fileName.append(UserChoice)
-        print "File added: ", UserChoice
+    if isAuto is False:
+        print "csv Files within the directory:"; print(glob.glob(filePath + "/*.csv")); print "\n"
+        UserChoice = choose_file()
 
+        if UserChoice == '':
+            os.chdir(filePath)
+            for ff in glob.glob("*.csv"):
+                if ff[-13:] != 'processed.csv':
+                    fileName.append(filePath +  "\\" + ff)
+                    print "File added: ", filePath +  "\\" + ff
+                else:
+                    print "File skipped: ", filePath +  "\\" + ff
+        else:
+            fileName.append(UserChoice)
+            print "File added: ", UserChoice
+
+    else:
+        print 'Auto process, skip GUI'
+        print 'Files to be processed this time: ', fileList
+        fileName = fileList
+    
     # fileName contains every file directory to be processed
     for f in fileName:
         f_out = f[:-4]
         f_out = f_out + '_processed.csv'
         process_header(f,f_out)
         # process_column(f,1)
+        if "Incident" in f_out:
+            upload_file_name = "Incident_processed.csv"
+        elif "MajorEvent" in f_out:
+            upload_file_name = "MajorEvent_processed.csv"
+        elif "Roadwork" in f_out:
+            upload_file_name = "Roadwork_processed.csv"
+        upload_file_name = Dropbox_dir + upload_file_name
+        shutil.copyfile(f_out,upload_file_name)
 
-    print("Processed complete, press any key to exit")
-    input()
     
+    if isAuto is False:
+        print("Processed complete, press any key to exit")
+        input()
+    else:
+        print("Processed complete, _process files generated")
+    
+
+if __name__ == "__main__":
+    main(False,[])
