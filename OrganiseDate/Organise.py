@@ -94,6 +94,11 @@ def write_to_file(target_dict,output_dir):
         writer = csv.writer(csv_file)
         for key, value in target_dict.items():
            writer.writerow([key, value])
+
+def write_to_pickle(target_dict,output_dir):
+        with open(output_dir,'wb') as f:
+            pickle.dump(target_dict,f)
+
 def main():
     # define directories
     FileDir = "C:\Users\LIU136\Dropbox\David Liu Internship\\"
@@ -104,6 +109,7 @@ def main():
     FileDir_Roadwork = FileDir + "LiveTrafficData\Roadwork_processed.csv"
     FileDir_MajorEvent = FileDir + "LiveTrafficData\MajorEvent_processed.csv"
     FileDir_Output = FileDir + "byDate\index.csv"
+    FileDir_Pickle_Output = FileDir + "byDate\index.pickle"
     # generate dictionary for all the dates
     global main_dict
     main_dict = generate_date()
@@ -115,7 +121,9 @@ def main():
     process_xlsx(FileDir_schoolEvent)
 
     write_to_file(main_dict,FileDir_Output)
+    write_to_pickle(main_dict,FileDir_Pickle_Output)
     # print main_dict
-
+    print 'All done.'
+    
 if __name__ == "__main__":
     main()
