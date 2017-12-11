@@ -448,9 +448,13 @@ if __name__ == "__main__":
     starttime_str_local = strftime("%Y-%m-%d %H:%M:%S", localtime())
     total_count = 0
 
-    fileDir_prefix = "C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\\"
+    # fileDir_prefix = "C:\Users\LIU136\OneDrive - Australian National University\Internship\CSIRO43691\\"
+    # fileDir_folder = "LiveTrafficData\\"
+    # Dropbox_dir = "C:\Users\LIU136\Dropbox\David Liu Internship\LiveTrafficData\\"
+    fileDir_prefix = "E:\OneDrive - Australian National University\Internship\CSIRO43691\\"
     fileDir_folder = "LiveTrafficData\\"
-    Dropbox_dir = "C:\Users\LIU136\Dropbox\David Liu Internship\LiveTrafficData\\"
+    Dropbox_dir = "E:\Dropbox\David Liu Internship\LiveTrafficData\\"
+    
     global fileDir
     fileDir = fileDir_prefix + fileDir_folder
     

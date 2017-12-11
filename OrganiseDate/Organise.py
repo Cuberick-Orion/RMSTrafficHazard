@@ -101,7 +101,10 @@ def write_to_pickle(target_dict,output_dir):
 
 def main():
     # define directories
-    FileDir = "C:\Users\LIU136\Dropbox\David Liu Internship\\"
+    # FileDir = "C:\Users\LIU136\Dropbox\David Liu Internship\\"
+    FileDir = "E:\Dropbox\David Liu Internship\\"
+
+
     FileDir_weather = FileDir + "WeatherData\Weather_2016_2017_v1.xlsx"
     FileDir_holiday = FileDir + "HolidayData\Public_holiday.xlsx"
     FileDir_schoolEvent = FileDir + "SchoolData\School_events.xlsx"
