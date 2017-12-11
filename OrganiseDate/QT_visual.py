@@ -1,43 +1,46 @@
+from PyQt4.QtGui import * 
+from PyQt4.QtCore import * 
 import sys
-from PyQt4 import QtGui, QtCore
 import pandas as pd
 import numpy as np
- 
-data = {'col1':['1','2','3'], 'col2':['4','5','6'], 'col3':['7','8','9']}
-df = pd.DataFrame(np.random.randn(5,2), columns=list('AB'))
 
-class MyTable(QtGui.QTableWidget):
-    def __init__(self):
-        QtGui.QTableWidget.__init__(self)
-        # self.data = data
-        # self.setmydata()
-        # self.resizeColumnsToContents()
-        # self.resizeRowsToContents()
-        self.datatable = QtGui.QTableWidget(parent=self)
-        self.datatable.setColumnCount(len(df.columns))
-        self.datatable.setRowCount(len(df.index))
+class Table(QTableWidget):
+
+    def __init__(self,df):
+
+        QMainWindow.__init__(self)
+        self.setWindowTitle('DataFrame Viewer')
+        self.resize(1500, 800)
+        self.setRowCount(len(df.columns))
+        self.setColumnCount(len(df.index))
+
+        self.table = QTableWidget()
+        self.tableItem = QTableWidgetItem()
+
+        # set label
+        self.setHorizontalHeaderLabels(df.columns.tolist())
+        # table.setVerticalHeaderLabels(QString("V1;V2;V3;V4").split(";"))
+        
+        # set data
+        print 'Generating table...'
         for i in range(len(df.index)):
             for j in range(len(df.columns)):
-                self.datatable.setItem(i,j,QtGui.QTableWidgetItem(str(df.iget_value(i, j))))
+                self.setItem(i,j,QTableWidgetItem( str(df.iloc[i][j]) ))
+
  
-    # def setmydata(self):
- 
-    #     horHeaders = []
-    #     for n, key in enumerate(sorted(self.data.keys())):
-    #         horHeaders.append(key)
-    #         for m, item in enumerate(self.data[key]):
-    #             newitem = QtGui.QTableWidgetItem(item)
-    #             self.setItem(m, n, newitem)
-    #     self.setHorizontalHeaderLabels(horHeaders)
- 
-def main():
-    app = QtGui.QApplication(sys.argv)
-    gui = MyTable()
+def main(df):
+    # app = QApplication(sys.argv)
+    gui = Table(df)
+    gui.show()
+    # app.exec_()
+    
+def main_separate(df):
+    app = QApplication(sys.argv)
+    gui = Table(df)
     gui.show()
     app.exec_()
-    # table = MyTable(data, 5, 3)
-    # datatable.show()
-    # sys.exit()
- 
+
 if __name__=="__main__":
-    main()
+    df1 = pd.DataFrame(np.random.randn(5,2), columns=list('AB'))
+    # print df1
+    main_separate(df1)

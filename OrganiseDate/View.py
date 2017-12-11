@@ -23,25 +23,18 @@ import numpy as np
 # please install pip install -U wxPython
 # please install pip install matplotlib
 import dfgui
+import QT_visual
 
 
 def read_dict(target_dir):
-    # with open(target_dir, 'rb') as csv_file:
-    #     reader = csv.reader(csv_file)
-    #     global main_dict
-    #     main_dict = dict(reader)
-    # return_dict = {}
-    # for key in main_dict: #change dict keys into type datetime.date
-    #     key_d = datetime.strptime(key,'%Y-%m-%d').date()
-    #     return_dict[key_d] = main_dict[key]
     with open(target_dir,'rb') as f:
         return_dict = pickle.load(f)
     return return_dict
 
 def choose():
-    # picked_date = raw_input("select a date in dd/mm/yy: \n")
-    # return datetime.strptime(picked_date,'%d/%m/%y').date()
-    return date(2017,1,1)
+    picked_date = raw_input("select a date in dd/mm/yy: \n")
+    return datetime.strptime(picked_date,'%d/%m/%y').date()
+    # return date(2017,1,1)
 
 def sort_events(input_list):
     output_LT = []
@@ -201,9 +194,8 @@ def main(chosen_date):
     final_df = pandas.DataFrame(final_list)
     # print
     dfgui.show(final_df)
-    # pretty_print(final_list)
-    # print final_dataframe
-    # print len(final_list)
+    # QT_visual.main(final_df)
+
     print "Spreadsheet closed\n"
 if __name__ == "__main__":
     chosen_date = choose()

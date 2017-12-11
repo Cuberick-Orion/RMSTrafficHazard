@@ -11,7 +11,8 @@
 
 import sys
 from datetime import timedelta
-# ! Please install PyQt4, choose wheel: PyQt4-4.11.4-cp27-cp27m-win32.whl
+# ! Please install PyQt4 at https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyqt4
+# choose wheel: PyQt4-4.11.4-cp27-cp27m-win32.whl
 from PyQt4 import QtGui, QtCore
 import View
 
