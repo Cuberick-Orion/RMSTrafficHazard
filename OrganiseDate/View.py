@@ -24,6 +24,7 @@ import numpy as np
 # please install pip install matplotlib
 import dfgui
 import QT_visual
+import QT_visual2
 
 
 def read_dict(target_dir):
@@ -32,9 +33,9 @@ def read_dict(target_dir):
     return return_dict
 
 def choose():
-    picked_date = raw_input("select a date in dd/mm/yy: \n")
-    return datetime.strptime(picked_date,'%d/%m/%y').date()
-    # return date(2017,1,1)
+    # picked_date = raw_input("select a date in dd/mm/yy: \n")
+    # return datetime.strptime(picked_date,'%d/%m/%y').date()
+    return date(2017,1,1)
 
 def sort_events(input_list):
     output_LT = []
@@ -106,16 +107,23 @@ def read_xlsx(fileName,input_list):
             # print
     return list_temp
 
-# def reorganise(input_list):
-#     content_list = []
-#     column_labels = input_list.pop(0)
-#     for row in input_list:
-#         content_list.append(tuple(row))
-    
-#     print column_labels
-#     print content_list
-#     df = pandas.DataFrame.from_records(content_list, columns=column_labels)
-#     return df
+def read_weather(fileName,input_date):
+    input_day = input_date.day
+    input_mon = input_date.month
+    input_yr = input_date.year
+
+    list_temp = []
+
+    xlsxreader = pandas.ExcelFile(fileName)
+    df = xlsxreader.parse(str(input_yr), skiprows=[0])
+    for index, row in df.iterrows():
+        if str(row['Month']) == str(input_mon) and str(row['Day']) == str(input_day):
+            list_temp.append(row.to_dict())
+            print row
+    if list_temp == []:
+        print "Weather data not found!"
+
+    return list_temp
 
 def pretty_print(input_list):
     output_df = pandas.DataFrame(index = ['id', 'name', 'type', 'subtype', 'start_date','end_date'])
@@ -160,8 +168,8 @@ def pretty_print(input_list):
 def main(chosen_date):
     
     # define directories
-    # FileDir = "C:\Users\LIU136\Dropbox\David Liu Internship\\"
-    FileDir = "E:\Dropbox\David Liu Internship\\"
+    FileDir = "C:\Users\LIU136\Dropbox\David Liu Internship\\"
+    # FileDir = "E:\Dropbox\David Liu Internship\\"
     
     FileDir_weather = FileDir + "WeatherData\Weather_2016_2017_v1.xlsx"
     FileDir_holiday = FileDir + "HolidayData\Public_holiday.xlsx"
@@ -189,12 +197,15 @@ def main(chosen_date):
     LT_M = read_csv(FileDir_MajorEvent,list_LiveTraffic)
     PH = read_xlsx(FileDir_holiday,list_PH)
     SC = read_xlsx(FileDir_schoolEvent,list_SC)
+    WT = read_weather(FileDir_weather,chosen_date)
     final_list = LT_I + LT_R + LT_M + PH + SC #final list contains event in dictionary form
 
     final_df = pandas.DataFrame(final_list)
+    final_wt = pandas.DataFrame(WT)
+    # final_wt.set_index('Attribute').T
     # print
-    dfgui.show(final_df)
-    # QT_visual.main(final_df)
+    # dfgui.show(final_df)
+    QT_visual2.main(final_wt,final_df)
 
     print "Spreadsheet closed\n"
 if __name__ == "__main__":

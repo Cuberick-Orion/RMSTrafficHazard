@@ -19,7 +19,7 @@ class Table(QTableWidget):
 
         # set label
         self.setHorizontalHeaderLabels(df.columns.tolist())
-        # table.setVerticalHeaderLabels(QString("V1;V2;V3;V4").split(";"))
+        
         
         # set data
         print 'Generating table...'
@@ -29,18 +29,21 @@ class Table(QTableWidget):
 
  
 def main(df):
-    # app = QApplication(sys.argv)
+    # app2 = QApplication(sys.argv)
     gui = Table(df)
     gui.show()
-    # app.exec_()
+    sys.exit(app.exec_())
     
-def main_separate(df):
+def main_lone(df):
     app = QApplication(sys.argv)
     gui = Table(df)
     gui.show()
     app.exec_()
+    # sys.exit(app.exec_())
 
 if __name__=="__main__":
     df1 = pd.DataFrame(np.random.randn(5,2), columns=list('AB'))
+    
     # print df1
-    main_separate(df1)
+    main_lone(df1)
+    
