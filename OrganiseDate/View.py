@@ -205,7 +205,7 @@ def main(chosen_date):
     # final_wt.set_index('Attribute').T
     # print
     # dfgui.show(final_df)
-    QT_visual2.main(final_wt,final_df)
+    QT_visual2.main(chosen_date,final_wt,final_df)
 
     print "Spreadsheet closed\n"
 if __name__ == "__main__":
