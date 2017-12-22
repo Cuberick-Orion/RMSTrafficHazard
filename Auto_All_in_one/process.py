@@ -120,7 +120,8 @@ def process_header(file,output_file):
 
 def main(isAuto,fileList):
     # Dropbox_dir = "C:\Users\LIU136\Dropbox\David Liu Internship\LiveTrafficData\\"
-    Dropbox_dir = "E:\Dropbox\David Liu Internship\LiveTrafficData\\"
+    # Dropbox_dir = "E:\Dropbox\David Liu Internship\LiveTrafficData\\"
+    Dropbox_dir = "C:\Users\\asuna\Dropbox\David Liu Internship\LiveTrafficData\\"
     upload_file_name = ""
     filePath = get_dir()
     fileName = []
