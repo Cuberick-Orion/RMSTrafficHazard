@@ -452,7 +452,7 @@ if __name__ == "__main__":
     # fileDir_folder = "LiveTrafficData\\"
     # Dropbox_dir = "C:\Users\LIU136\Dropbox\David Liu Internship\LiveTrafficData\\"
     # =====================================
-    fileDir_prefix = "E:\OneDrive - Australian National University\Internship\CSIRO43691\\"
+    fileDir_prefix = "E:\Dropbox\\"
     fileDir_folder = "LiveTrafficData\\"
     Dropbox_dir = "E:\Dropbox\David Liu Internship\LiveTrafficData\\"
     # =====================================
